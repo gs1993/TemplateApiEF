@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 15
 VisualStudioVersion = 15.0.27703.2042
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Api", "Api\Api.csproj", "{71432103-7661-4D23-94E7-2FD212FBF5FE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Api", "Api\Api.csproj", "{71432103-7661-4D23-94E7-2FD212FBF5FE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Logic", "Logic\Logic.csproj", "{5A94081D-25ED-40E6-9D1C-250402FFBF42}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{71432103-7661-4D23-94E7-2FD212FBF5FE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{71432103-7661-4D23-94E7-2FD212FBF5FE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{71432103-7661-4D23-94E7-2FD212FBF5FE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5A94081D-25ED-40E6-9D1C-250402FFBF42}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5A94081D-25ED-40E6-9D1C-250402FFBF42}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5A94081D-25ED-40E6-9D1C-250402FFBF42}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5A94081D-25ED-40E6-9D1C-250402FFBF42}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
