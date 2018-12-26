@@ -16,24 +16,27 @@ namespace Logic.Services
         {
             _context = context;
         }
-
-        public User Authenticate(string username, string password)
+        
+        public Result<User> Authenticate(string email, string password)
         {
-            if (string.IsNullOrEmpty(username) || string.IsNullOrEmpty(password))
-                return null;
+            if (string.IsNullOrWhiteSpace(email))
+                return Result.Fail<User>("Email cannot be empty");
 
-            var user = _context.Users.SingleOrDefault(x => x.Username == username);
+            if(!VerifyEmailSyntax(email))
+                return Result.Fail<User>("Email syntax is incorrect");
 
-            // check if username exists
+            if (string.IsNullOrWhiteSpace(password))
+                return Result.Fail<User>("Password cannot be empty");
+            
+            var user = _context.Users.SingleOrDefault(x => x.Email == email);
+            
             if (user == null)
-                return null;
-
-            // check if password is correct
+                return Result.Fail<User>($"No user for email: {email}");
+            
             if (!VerifyPasswordHash(password, user.PasswordHash, user.PasswordSalt))
-                return null;
+                return Result.Fail<User>("Incorrect password"); ;
 
-            // authentication successful
-            return user;
+            return Result.Ok(user);
         }
 
         public IEnumerable<User> GetAll()
@@ -46,36 +49,34 @@ namespace Logic.Services
             return _context.Users.Find(id);
         }
 
-        public Result ValidateCreateUserDto(UserDto userDto)
+        public Result ValidateCreateUserDto(UserRegisterDto userRegisterDto)
         {
-            if (string.IsNullOrWhiteSpace(userDto.Password))
+            if (string.IsNullOrWhiteSpace(userRegisterDto.Password))
                 return Result.Fail("Password is required");
 
-            if (userDto.Password.Length > 100)
+            if (userRegisterDto.Password.Length > 100)
                 return Result.Fail("Password is too long");
 
-            if (!string.IsNullOrWhiteSpace(userDto.Username) && userDto.Username.Length > 150)
+            if (!string.IsNullOrWhiteSpace(userRegisterDto.Username) && userRegisterDto.Username.Length > 150)
                 return Result.Fail("User name is too long");
 
-            if (!string.IsNullOrWhiteSpace(userDto.FirstName) && userDto.FirstName.Length > 150)
+            if (!string.IsNullOrWhiteSpace(userRegisterDto.FirstName) && userRegisterDto.FirstName.Length > 150)
                 return Result.Fail("First name is too long");
 
-            if (!string.IsNullOrWhiteSpace(userDto.LastName) && userDto.LastName.Length > 150)
+            if (!string.IsNullOrWhiteSpace(userRegisterDto.LastName) && userRegisterDto.LastName.Length > 150)
                 return Result.Fail("Last name is too long");
 
-            if (string.IsNullOrWhiteSpace(userDto.Email))
+            if (string.IsNullOrWhiteSpace(userRegisterDto.Email))
                 return Result.Fail("Email is required");
 
-            if (userDto.Email.Length > 150)
+            if (userRegisterDto.Email.Length > 150)
                 return Result.Fail("Email is too long");
 
-            Regex regex = new Regex(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$");
-            Match match = regex.Match(userDto.Email);
-            if (!match.Success)
-                return Result.Fail("Email format is incorrect");
+            if(!VerifyEmailSyntax(userRegisterDto.Email))
+                return Result.Fail("Email syntax is incorrect");
 
-            if (_context.Users.Any(x => x.Email == userDto.Email))
-                return Result.Fail("Email \"" + userDto.Email + "\" is already taken");
+            if (_context.Users.Any(x => x.Email == userRegisterDto.Email))
+                return Result.Fail("Email \"" + userRegisterDto.Email + "\" is already taken");
             
             return Result.Ok();
         }
@@ -166,6 +167,13 @@ namespace Logic.Services
             }
 
             return true;
+        }
+
+        private static bool VerifyEmailSyntax(string email)
+        {
+            Regex regex = new Regex(@"^([\w\.\-]+)@([\w\-]+)((\.(\w){2,3})+)$");
+            Match match = regex.Match(email);
+            return match.Success;
         }
     }
 }

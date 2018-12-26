@@ -1,5 +1,5 @@
 export class ApiResponse {
-    result: Object[];
+    data: Object[];
     errorMessage: string;
     timeGenerated: string;
 

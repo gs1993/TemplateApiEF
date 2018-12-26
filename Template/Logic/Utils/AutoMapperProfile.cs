@@ -8,8 +8,8 @@ namespace Logic.Utils
     {
         public AutoMapperProfile()
         {
-            CreateMap<User, UserDto>();
-            CreateMap<UserDto, User>();
+            CreateMap<User, UserRegisterDto>();
+            CreateMap<UserRegisterDto, User>();
         }
     }
 }

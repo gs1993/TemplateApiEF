@@ -31,12 +31,14 @@ namespace Api.Controllers
 
         [AllowAnonymous]
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody]UserDto userDto)
+        public IActionResult Authenticate([FromBody]UserLoginDto userLoginDto)
         {
-            var user = _userService.Authenticate(userDto.Username, userDto.Password);
+            var result = _userService.Authenticate(userLoginDto.Email, userLoginDto.Password);
 
-            if (user == null)
-                return BadRequest(new { message = "Username or password is incorrect" });
+            if (result.IsFailure)
+                return Error(result.Error);
+
+            var user = result.Value;
 
             var tokenHandler = new JwtSecurityTokenHandler();
             var key = Encoding.ASCII.GetBytes(_appSettings.Secret);
@@ -52,9 +54,8 @@ namespace Api.Controllers
             var token = tokenHandler.CreateToken(tokenDescriptor);
             var tokenString = tokenHandler.WriteToken(token);
 
-            return Ok(new
+            return Ok(new UserResultDto
             {
-                Id = user.Id,
                 Username = user.Username,
                 Email = user.Email,
                 FirstName = user.FirstName,
@@ -65,25 +66,25 @@ namespace Api.Controllers
 
         [AllowAnonymous]
         [HttpPost("register")]
-        public IActionResult Register([FromBody]UserDto userDto)
+        public IActionResult Register([FromBody]UserRegisterDto userRegisterDto)
         {
-            var validationResult = _userService.ValidateCreateUserDto(userDto);
+            var validationResult = _userService.ValidateCreateUserDto(userRegisterDto);
             if (validationResult.IsFailure)
                 return Error(validationResult.Error);
 
-            var user = _mapper.Map<User>(userDto);
+            var user = _mapper.Map<User>(userRegisterDto);
             
-            _userService.Create(user, userDto.Password);
+            _userService.Create(user, userRegisterDto.Password);
 
             return Ok();
         }
 
-        [HttpGet]
+        [HttpGet("test")]
         [AllowAnonymous]
         public IActionResult GetAll()
         {
             var users = _userService.GetAll();
-            var userDtos = _mapper.Map<IList<UserDto>>(users);
+            var userDtos = _mapper.Map<IList<UserRegisterDto>>(users);
             return Ok(userDtos);
         }
 
@@ -91,21 +92,21 @@ namespace Api.Controllers
         public IActionResult GetById(int id)
         {
             var user = _userService.GetById(id);
-            var userDto = _mapper.Map<UserDto>(user);
+            var userDto = _mapper.Map<UserRegisterDto>(user);
             return Ok(userDto);
         }
 
         [HttpPut("{id}")]
-        public IActionResult Update(int id, [FromBody]UserDto userDto)
+        public IActionResult Update(int id, [FromBody]UserRegisterDto userRegisterDto)
         {
             // map dto to entity and set id
-            var user = _mapper.Map<User>(userDto);
+            var user = _mapper.Map<User>(userRegisterDto);
             user.Id = id;
 
             try
             {
                 // save 
-                _userService.Update(user, userDto.Password);
+                _userService.Update(user, userRegisterDto.Password);
                 return Ok();
             }
             catch (Exception ex)
@@ -120,6 +121,19 @@ namespace Api.Controllers
         {
             _userService.Delete(id);
             return Ok();
+        }
+
+        public IActionResult GetUserClaims()
+        {
+            var identityClaims = (ClaimsIdentity)User.Identity;
+            IEnumerable<Claim> claims = identityClaims.Claims;
+            UserResultDto model = new UserResultDto()
+            {
+                Email = identityClaims.FindFirst("Email").Value,
+                FirstName = identityClaims.FindFirst("FirstName").Value,
+                LastName = identityClaims.FindFirst("LastName").Value
+            };
+            return Ok(model);
         }
     }
 }

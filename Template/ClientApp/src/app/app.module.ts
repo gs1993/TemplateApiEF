@@ -9,11 +9,19 @@ import { HttpClientModule } from '@angular/common/http';
 import { ToastrModule } from 'ngx-toastr';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { UserService } from './user/user.service';
+import { SignInComponent } from './user/sign-in/sign-in.component';
+import { HomeComponent } from './home/home.component';
+import { UserComponent } from './user/user.component';
+import { RouterModule } from '@angular/router';
+import { AuthGuard } from './user/auth.guard';
 
 @NgModule({
   declarations: [
     AppComponent,
-    SignUpComponent
+    SignUpComponent,
+    SignInComponent,
+    HomeComponent,
+    UserComponent
   ],
   imports: [
     BrowserModule,
@@ -22,9 +30,10 @@ import { UserService } from './user/user.service';
     CommonModule,
     HttpClientModule,
     BrowserAnimationsModule,
+    RouterModule,
     ToastrModule.forRoot()
   ],
-  providers: [UserService],
+  providers: [UserService, AuthGuard],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

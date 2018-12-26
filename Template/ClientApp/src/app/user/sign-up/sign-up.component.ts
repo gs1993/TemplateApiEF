@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { UserRegistration } from '../user-registration.model';
+import { UserRegistration } from '../user.model';
 import { UserService } from '../user.service';
 import { ToastrService } from 'ngx-toastr';
-import { NgForm } from '../../../../node_modules/@angular/forms';
+import { NgForm } from '@angular/forms';
 import { ApiResponse } from '../../config/ApiResponse';
 
 @Component({
@@ -12,7 +12,6 @@ import { ApiResponse } from '../../config/ApiResponse';
 })
 export class SignUpComponent implements OnInit {
   user: UserRegistration;
-  emailPattern = '^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,4}$';
 
   constructor(private userService: UserService, private toastr: ToastrService) { }
 
@@ -25,7 +24,6 @@ export class SignUpComponent implements OnInit {
       form.reset();
     }
     this.user = {
-      UserName: '',
       Password: '',
       Email: '',
       FirstName: '',
@@ -40,9 +38,9 @@ export class SignUpComponent implements OnInit {
           this.resetForm(form);
           this.toastr.success('User registration successful');
         }
-      }, error => {
-        if (error.error.errorMessage != null) {
-          this.toastr.error(error.error.errorMessage);
+      }, rsp => {
+        if (rsp.error.errorMessage != null) {
+          this.toastr.error(rsp.error.errorMessage);
         }
       });
   }
